@@ -10,4 +10,8 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Server is running" });
 });
 
+app.get("/api/hello", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Hello, welcome to my website" });
+});
+
 export default app;
