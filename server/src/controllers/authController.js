@@ -54,3 +54,7 @@ export async function login(req, res) {
     user: { id: user._id, name: user.name, email: user.email, role: user.role },
   });
 }
+export async function getMe(req, res) {
+  const { _id, name, email, role, phone } = req.user;
+  res.status(200).json({ user: { id: _id, name, email, role, phone } });
+}
