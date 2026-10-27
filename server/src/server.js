@@ -4,6 +4,10 @@ import { connectDB } from "./config/db.js";
 
 const PORT = process.env.PORT || 5000;
 
+if (!process.env.JWT_SECRET) {
+  throw new Error("Thiếu JWT_SECRET trong file .env");
+}
+
 async function start() {
   try {
     await connectDB();
