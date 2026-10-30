@@ -1,7 +1,11 @@
 import mongoose from "mongoose";
 import Product from "../models/Product.js";
 import Category from "../models/Category.js";
-import { listProductsSchema } from "../validators/productValidator.js";
+import {
+    listProductsSchema,
+    createProductSchema,
+    updateProductSchema
+} from "../validators/productValidator.js";
 
 function escapeRegex(text) {
     return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -68,4 +72,85 @@ export async function getProduct(req, res) {
     }
 
     res.status(200).json({ data: product });
+}
+export async function createProduct(req, res) {
+    const parsed = createProductSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ message: parsed.error.issues[0].message });
+    }
+    const data = parsed.data;
+
+    if (!mongoose.isValidObjectId(data.category)) {
+        return res.status(400).json({ message: "Danh mục không hợp lệ" });
+    }
+    const category = await Category.findById(data.category);
+    if (!category) {
+        return res.status(400).json({ message: "Danh mục không tồn tại" });
+    }
+
+    const dup = findDuplicateSku(data.variants);
+    if (dup) {
+        return res.status(400).json({ message: `SKU bị trùng: ${dup}` });
+    }
+
+    const product = await Product.create(data);
+    res.status(201).json({ data: product });
+}
+
+export async function updateProduct(req, res) {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({ message: "ID sản phẩm không hợp lệ" });
+    }
+
+    const parsed = updateProductSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ message: parsed.error.issues[0].message });
+    }
+    const data = parsed.data;
+
+    if (data.category) {
+        if (
+            !mongoose.isValidObjectId(data.category) ||
+            !(await Category.findById(data.category))
+        ) {
+            return res.status(400).json({ message: "Danh mục không tồn tại" });
+        }
+    }
+
+    if (data.variants) {
+        const dup = findDuplicateSku(data.variants);
+        if (dup) {
+            return res.status(400).json({ message: `SKU bị trùng: ${dup}` });
+        }
+    }
+
+    const product = await Product.findOneAndUpdate(
+        { _id: id, isActive: true },
+        data,
+        { returnDocument: "after", runValidators: true }
+    );
+
+    if (!product) {
+        return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+    }
+    res.status(200).json({ data: product });
+}
+
+export async function deleteProduct(req, res) {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({ message: "ID sản phẩm không hợp lệ" });
+    }
+
+    const product = await Product.findOneAndUpdate(
+        { _id: id, isActive: true },
+        { isActive: false },
+        { returnDocument: "after" }
+    );
+
+    if (!product) {
+        return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+    }
+    res.status(200).json({ message: "Đã ẩn sản phẩm" });
 }

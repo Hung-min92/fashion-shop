@@ -19,7 +19,7 @@ const created = await Product.create({
   category: category._id,
   variants: [
     { sku: "AT-S-TRANG", size: "S", color: "Trắng", stock: 50 },
-    { sku: "AT-M-DEN",   size: "M", color: "Đen",   stock: 30 },
+    { sku: "AT-M-DEN", size: "M", color: "Đen", stock: 30 },
   ],
 });
 console.log("✅ Đã tạo sản phẩm:", created.name, "| Giá:", created.price);
@@ -33,7 +33,7 @@ console.log("✅ Tìm thấy:", found.name, "| Danh mục:", found.category.name
 const updated = await Product.findByIdAndUpdate(
   created._id,
   { price: 249000 },
-  { new: true }
+  { returnDocument: "after" }
 );
 console.log("✅ Đã cập nhật giá:", updated.price);
 
