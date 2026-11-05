@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 import Cart from "../models/Cart.js";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-import { createOrderSchema } from "../validators/orderValidator.js";
+import {
+    createOrderSchema,
+    updateStatusSchema,
+    listAdminOrdersSchema,
+} from "../validators/orderValidator.js";
+import User from "../models/User.js"; // cần để populate("user") hoạt động
 
 // Hoàn lại tồn kho cho các món đã trừ
 async function restoreStock(deducted) {
@@ -118,4 +123,118 @@ export async function getOrder(req, res) {
     }
 
     res.status(200).json({ data: order });
+}
+// Trạng thái hiện tại -> các trạng thái được phép chuyển tới
+const ALLOWED_TRANSITIONS = {
+  pending: ["shipping", "cancelled"],
+  shipping: ["completed", "cancelled"],
+  completed: [],
+  cancelled: [],
+};
+
+// Đổi trạng thái nguyên tử; nếu hủy thì hoàn kho. Trả về đơn mới hoặc null
+async function changeStatus(order, newStatus) {
+  const update = { status: newStatus };
+  if (newStatus === "completed") update.paymentStatus = "paid";
+
+  const updated = await Order.findOneAndUpdate(
+    { _id: order._id, status: order.status },
+    update,
+    { returnDocument: "after" }
+  );
+  if (!updated) return null;
+
+  if (newStatus === "cancelled") {
+    await restoreStock(
+      updated.items.map((i) => ({
+        product: i.product,
+        sku: i.sku,
+        quantity: i.quantity,
+      }))
+    );
+  }
+  return updated;
+}
+
+export async function cancelMyOrder(req, res) {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ message: "ID đơn hàng không hợp lệ" });
+  }
+
+  const order = await Order.findOne({ _id: id, user: req.user._id });
+  if (!order) {
+    return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+  }
+  if (order.status !== "pending") {
+    return res
+      .status(400)
+      .json({ message: "Chỉ hủy được đơn đang chờ xử lý" });
+  }
+
+  const updated = await changeStatus(order, "cancelled");
+  if (!updated) {
+    return res
+      .status(409)
+      .json({ message: "Đơn hàng vừa thay đổi, vui lòng thử lại" });
+  }
+  res.status(200).json({ data: updated });
+}
+
+export async function listAdminOrders(req, res) {
+  const parsed = listAdminOrdersSchema.safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ message: parsed.error.issues[0].message });
+  }
+  const { status, page, limit } = parsed.data;
+
+  const filter = status ? { status } : {};
+
+  const [data, totalItems] = await Promise.all([
+    Order.find(filter)
+      .populate("user", "name email")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Order.countDocuments(filter),
+  ]);
+
+  res.status(200).json({
+    data,
+    page,
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+  });
+}
+
+export async function updateOrderStatus(req, res) {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ message: "ID đơn hàng không hợp lệ" });
+  }
+
+  const parsed = updateStatusSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: parsed.error.issues[0].message });
+  }
+  const newStatus = parsed.data.status;
+
+  const order = await Order.findById(id);
+  if (!order) {
+    return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+  }
+
+  if (!ALLOWED_TRANSITIONS[order.status].includes(newStatus)) {
+    return res.status(400).json({
+      message: `Không thể chuyển từ "${order.status}" sang "${newStatus}"`,
+    });
+  }
+
+  const updated = await changeStatus(order, newStatus);
+  if (!updated) {
+    return res
+      .status(409)
+      .json({ message: "Đơn hàng vừa thay đổi, vui lòng thử lại" });
+  }
+  res.status(200).json({ data: updated });
 }

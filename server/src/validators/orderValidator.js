@@ -12,3 +12,14 @@ export const createOrderSchema = z.object({
     }),
     note: z.string().trim().max(500).optional(),
 });
+export const updateStatusSchema = z.object({
+    status: z.enum(["shipping", "completed", "cancelled"], {
+        message: "Trạng thái không hợp lệ",
+    }),
+});
+
+export const listAdminOrdersSchema = z.object({
+    status: z.enum(["pending", "shipping", "completed", "cancelled"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(50).default(10),
+});

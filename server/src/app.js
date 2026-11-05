@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
+import adminOrderRoutes from "./routes/adminOrderRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import { protect, requireRole } from "./middleware/auth.js";
 import productRoutes from "./routes/productRoutes.js";
@@ -24,6 +25,7 @@ app.use("/api/orders", orderRoutes);
 app.get("/api/admin/ping", protect, requireRole("admin"), (req, res) => {
   res.status(200).json({ message: "Xin chào admin" });
 });
+app.use("/api/admin/orders", adminOrderRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
