@@ -7,7 +7,6 @@ import {
 } from "../controllers/orderController.js";
 import { protect } from "../middleware/auth.js";
 
-router.patch("/:id/cancel", cancelMyOrder);
 
 const router = Router();
 
