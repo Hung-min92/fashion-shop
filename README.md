@@ -17,3 +17,11 @@ orders	user, items[], shippingAddress, paymentMethod, status, totalPrice
 review userId, productId, rating, comment, createdAt
 Comment userId, content, createdAt
 Post title, slug, content, thumbnail, authorId, status
+
+## Cài đặt backend
+
+1. git clone <địa chỉ repo>
+2. cd fashion-shop/server
+3. npm install
+4. Sao chép .env.example thành .env rồi điền giá trị thật
+5. npm run dev
