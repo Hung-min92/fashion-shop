@@ -11,6 +11,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import adminStatsRoutes from "./routes/adminStatsRoutes.js";
 const app = express();
 app.set("trust proxy", 1);
 
@@ -62,6 +63,7 @@ app.get("/api/admin/ping", protect, requireRole("admin"), (req, res) => {
 });
 app.use("/api/admin/orders", adminOrderRoutes);
 app.use("/api/uploads", uploadRoutes);
+app.use("/api/admin/stats", adminStatsRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

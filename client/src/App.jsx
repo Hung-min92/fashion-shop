@@ -9,6 +9,7 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import AdminOrdersPage from "./pages/admin/AdminOrdersPage.jsx";
 import AdminProductsPage from "./pages/admin/AdminProductsPage.jsx";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage.jsx";
 
 export default function App() {
   const { user, logout } = useAuth();
@@ -36,6 +37,7 @@ export default function App() {
                 <Link to="/orders" className="hover:underline">Đơn hàng</Link>
                 {user.role === "admin" && (
                   <>
+                    <Link to="/admin" className="hover:underline">Thống kê</Link>
                     <Link to="/admin/orders" className="hover:underline">Quản lý đơn</Link>
                     <Link to="/admin/products" className="hover:underline">Quản lý sản phẩm</Link>
                   </>
@@ -67,6 +69,7 @@ export default function App() {
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
           <Route path="/admin/orders" element={<ProtectedRoute role="admin"><AdminOrdersPage /></ProtectedRoute>} />
           <Route path="/admin/products" element={<ProtectedRoute role="admin"><AdminProductsPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboardPage /></ProtectedRoute>} />
           <Route path="*" element={<p>Không tìm thấy trang.</p>} />
         </Routes>
       </main>
