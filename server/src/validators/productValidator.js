@@ -7,6 +7,7 @@ export const listProductsSchema = z.object({
     maxPrice: z.coerce.number().min(0).optional(),
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(50).default(12),
+    sort: z.enum(["newest", "price_asc", "price_desc"]).default("newest"),
 });
 const variantInput = z.object({
     sku: z.string().trim().min(1, "SKU là bắt buộc"),
@@ -19,7 +20,18 @@ export const createProductSchema = z.object({
     name: z.string().trim().min(1, "Tên sản phẩm là bắt buộc").max(150),
     description: z.string().trim().optional(),
     price: z.coerce.number().min(0, "Giá không được âm"),
-    images: z.array(z.string().trim()).optional(),
+    images: z
+        .array(
+            z
+                .string()
+                .trim()
+                .refine(
+                    (u) => u.startsWith("https://res.cloudinary.com/"),
+                    "Ảnh phải được tải lên qua hệ thống"
+                )
+        )
+        .max(6, "Tối đa 6 ảnh")
+        .optional(),
     category: z.string().trim().min(1, "Danh mục là bắt buộc"),
     variants: z.array(variantInput).min(1, "Cần ít nhất một biến thể"),
 });

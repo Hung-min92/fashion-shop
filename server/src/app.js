@@ -10,6 +10,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import uploadRoutes from "./routes/uploadRoutes.js";
 const app = express();
 app.set("trust proxy", 1);
 
@@ -60,6 +61,7 @@ app.get("/api/admin/ping", protect, requireRole("admin"), (req, res) => {
   res.status(200).json({ message: "Xin chào admin" });
 });
 app.use("/api/admin/orders", adminOrderRoutes);
+app.use("/api/uploads", uploadRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
