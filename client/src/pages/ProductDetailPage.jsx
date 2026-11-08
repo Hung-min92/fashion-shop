@@ -14,9 +14,11 @@ export default function ProductDetailPage() {
     const [size, setSize] = useState("");
     const [color, setColor] = useState("");
     const [msg, setMsg] = useState("");
+    const [activeImage, setActiveImage] = useState(0);
 
     useEffect(() => {
         setLoading(true);
+        setActiveImage(0);
         apiGet(`/api/products/${id}`)
             .then((body) => setProduct(body.data))
             .catch((err) => setError(err.message))
@@ -53,8 +55,34 @@ export default function ProductDetailPage() {
             </Link>
 
             <div className="mt-4 grid gap-8 md:grid-cols-2">
-                <div className="flex h-80 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
-                    Chưa có ảnh
+                <div>
+                    <div className="flex h-[480px] items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+                        {product.images?.length ? (
+                            <img
+                                src={product.images[activeImage]}
+                                alt={product.name}
+                                className="h-full w-full object-contain"
+                            />
+                        ) : (
+                            <span className="text-gray-400">Chưa có ảnh</span>
+                        )}
+                    </div>
+
+                    {product.images?.length > 1 && (
+                        <div className="mt-2 flex gap-2">
+                            {product.images.map((url, i) => (
+                                <button
+                                    key={url}
+                                    type="button"
+                                    onClick={() => setActiveImage(i)}
+                                    className={`h-20 w-16 overflow-hidden border-2 ${i === activeImage ? "border-black" : "border-transparent"
+                                        }`}
+                                >
+                                    <img src={url} alt="" className="h-full w-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div>

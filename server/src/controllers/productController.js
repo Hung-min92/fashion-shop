@@ -19,13 +19,18 @@ function findDuplicateSku(variants) {
     }
     return null;
 }
+const SORT_MAP = {
+    newest: { createdAt: -1, _id: -1 },
+    price_asc: { price: 1, _id: 1 },
+    price_desc: { price: -1, _id: 1 },
+};
 export async function listProducts(req, res) {
     const parsed = listProductsSchema.safeParse(req.query);
     if (!parsed.success) {
         return res.status(400).json({ message: parsed.error.issues[0].message });
     }
 
-    const { search, category, minPrice, maxPrice, page, limit } = parsed.data;
+    const { search, category, minPrice, maxPrice, page, limit, sort } = parsed.data;
 
     const filter = { isActive: true };
 
@@ -49,7 +54,7 @@ export async function listProducts(req, res) {
     const [data, totalItems] = await Promise.all([
         Product.find(filter)
             .populate("category", "name slug")
-            .sort({ createdAt: -1 })
+            .sort(SORT_MAP[sort])
             .skip((page - 1) * limit)
             .limit(limit),
         Product.countDocuments(filter),
