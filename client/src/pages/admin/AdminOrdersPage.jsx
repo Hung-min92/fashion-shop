@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../api.js";
+import { useAuth } from "../../AuthContext.jsx";
 
 const STATUS_LABEL = {
     pending: "Chờ xử lý",
@@ -17,6 +18,8 @@ const NEXT = {
 };
 
 export default function AdminOrdersPage() {
+    const { user } = useAuth();
+    const readOnly = user?.role === "viewer";
     const [data, setData] = useState(null);
     const [status, setStatus] = useState("");
     const [page, setPage] = useState(1);
@@ -53,7 +56,11 @@ export default function AdminOrdersPage() {
     return (
         <div>
             <h1 className="mb-4 text-2xl font-bold">Quản lý đơn hàng</h1>
-
+            {readOnly && (
+                <p className="mb-4 border-2 border-black bg-[#c6ff00] p-2 text-sm font-bold">
+                    Chế độ chỉ xem (tài khoản demo). Thông tin khách hàng đã được che.
+                </p>
+            )}
             <select
                 value={status}
                 onChange={(e) => {
@@ -95,17 +102,19 @@ export default function AdminOrdersPage() {
 
                         <div className="mt-2 flex items-center justify-between">
                             <p className="font-semibold">{o.totalPrice.toLocaleString("vi-VN")}đ</p>
-                            <div className="flex gap-2">
-                                {NEXT[o.status].map((s) => (
-                                    <button
-                                        key={s}
-                                        onClick={() => changeStatus(o._id, s)}
-                                        className="rounded border px-3 py-1 text-sm"
-                                    >
-                                        {STATUS_LABEL[s]}
-                                    </button>
-                                ))}
-                            </div>
+                            {!readOnly && (
+                                <div className="flex gap-2">
+                                    {NEXT[o.status].map((s) => (
+                                        <button
+                                            key={s}
+                                            onClick={() => changeStatus(o._id, s)}
+                                            className="rounded border px-3 py-1 text-sm"
+                                        >
+                                            {STATUS_LABEL[s]}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}

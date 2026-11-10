@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../api.js";
+import { useAuth } from "../../AuthContext.jsx";
 
 const EMPTY_FORM = { name: "", description: "", price: "", category: "" };
 const EMPTY_VARIANT = { sku: "", size: "", color: "", stock: "" };
@@ -15,6 +16,8 @@ export default function AdminProductsPage() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
+    const { user } = useAuth();
+    const readOnly = user?.role === "viewer";
 
     async function load() {
         const [p, c] = await Promise.all([
@@ -152,96 +155,100 @@ export default function AdminProductsPage() {
     return (
         <div>
             <h1 className="mb-4 text-2xl font-bold">Quản lý sản phẩm</h1>
-
+            {readOnly && (
+                <p className="mb-4 border-2 border-black bg-[#c6ff00] p-2 text-sm font-bold">
+                    Chế độ chỉ xem (tài khoản demo). Các thao tác chỉnh sửa bị vô hiệu hóa.
+                </p>
+            )}
             {error && <p className="mb-2 text-red-600">{error}</p>}
             {message && <p className="mb-2 text-green-700">{message}</p>}
+            {!readOnly && (
+                <form
+                    onSubmit={submit}
+                    className="mb-8 grid gap-2 rounded border bg-white p-4 md:grid-cols-2"
+                >
+                    <h2 className="font-bold md:col-span-2">
+                        {editingId ? "Sửa sản phẩm" : "Tạo sản phẩm mới"}
+                    </h2>
 
-            <form
-                onSubmit={submit}
-                className="mb-8 grid gap-2 rounded border bg-white p-4 md:grid-cols-2"
-            >
-                <h2 className="font-bold md:col-span-2">
-                    {editingId ? "Sửa sản phẩm" : "Tạo sản phẩm mới"}
-                </h2>
-
-                <input className={input} placeholder="Tên sản phẩm" value={form.name} onChange={setField("name")} />
-                <input className={input} placeholder="Giá (đồng)" value={form.price} onChange={setField("price")} />
-                <select className={input} value={form.category} onChange={setField("category")}>
-                    <option value="">-- Chọn danh mục --</option>
-                    {categories.map((c) => (
-                        <option key={c._id} value={c._id}>{c.name}</option>
-                    ))}
-                </select>
-                <input className={input} placeholder="Mô tả" value={form.description} onChange={setField("description")} />
-
-                <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium">
-                        Ảnh sản phẩm ({images.length}/6)
-                    </label>
-                    <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={handleFile}
-                        disabled={uploading || images.length >= 6}
-                        className="text-sm"
-                    />
-                    {uploading && <p className="mt-1 text-sm text-gray-500">Đang tải ảnh lên...</p>}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                        {images.map((url) => (
-                            <div key={url} className="relative">
-                                <img src={url} alt="" className="h-20 w-16 rounded border object-cover" />
-                                <button
-                                    type="button"
-                                    onClick={() => removeImage(url)}
-                                    className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-black text-xs text-white"
-                                >
-                                    x
-                                </button>
-                            </div>
+                    <input className={input} placeholder="Tên sản phẩm" value={form.name} onChange={setField("name")} />
+                    <input className={input} placeholder="Giá (đồng)" value={form.price} onChange={setField("price")} />
+                    <select className={input} value={form.category} onChange={setField("category")}>
+                        <option value="">-- Chọn danh mục --</option>
+                        {categories.map((c) => (
+                            <option key={c._id} value={c._id}>{c.name}</option>
                         ))}
-                    </div>
-                </div>
+                    </select>
+                    <input className={input} placeholder="Mô tả" value={form.description} onChange={setField("description")} />
 
-                <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium">Biến thể (size, màu, tồn kho)</label>
-                    <div className="space-y-2">
-                        {variants.map((v, i) => (
-                            <div key={i} className="grid grid-cols-2 gap-2 md:grid-cols-5">
-                                <input className={input} placeholder="SKU (vd: AO-M-DEN)" value={v.sku} onChange={(e) => setVariantField(i, "sku", e.target.value)} />
-                                <input className={input} placeholder="Size" value={v.size} onChange={(e) => setVariantField(i, "size", e.target.value)} />
-                                <input className={input} placeholder="Màu" value={v.color} onChange={(e) => setVariantField(i, "color", e.target.value)} />
-                                <input className={input} placeholder="Tồn kho" value={v.stock} onChange={(e) => setVariantField(i, "stock", e.target.value)} />
-                                <button
-                                    type="button"
-                                    onClick={() => removeVariant(i)}
-                                    disabled={variants.length === 1}
-                                    className="rounded border px-3 py-2 text-sm text-red-600 disabled:opacity-30"
-                                >
-                                    Xóa dòng
-                                </button>
-                            </div>
-                        ))}
+                    <div className="md:col-span-2">
+                        <label className="mb-1 block text-sm font-medium">
+                            Ảnh sản phẩm ({images.length}/6)
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleFile}
+                            disabled={uploading || images.length >= 6}
+                            className="text-sm"
+                        />
+                        {uploading && <p className="mt-1 text-sm text-gray-500">Đang tải ảnh lên...</p>}
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            {images.map((url) => (
+                                <div key={url} className="relative">
+                                    <img src={url} alt="" className="h-20 w-16 rounded border object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(url)}
+                                        className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-black text-xs text-white"
+                                    >
+                                        x
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                    <button type="button" onClick={addVariant} className="mt-2 text-sm underline">
-                        + Thêm biến thể
-                    </button>
-                </div>
 
-                <div className="flex gap-2 md:col-span-2">
-                    <button
-                        disabled={saving || uploading}
-                        className="flex-1 rounded bg-black py-2 text-white disabled:opacity-50"
-                    >
-                        {saving ? "Đang lưu..." : editingId ? "Lưu thay đổi" : "Tạo sản phẩm"}
-                    </button>
-                    {editingId && (
-                        <button type="button" onClick={resetForm} className="rounded border px-4 py-2">
-                            Hủy sửa
+                    <div className="md:col-span-2">
+                        <label className="mb-1 block text-sm font-medium">Biến thể (size, màu, tồn kho)</label>
+                        <div className="space-y-2">
+                            {variants.map((v, i) => (
+                                <div key={i} className="grid grid-cols-2 gap-2 md:grid-cols-5">
+                                    <input className={input} placeholder="SKU (vd: AO-M-DEN)" value={v.sku} onChange={(e) => setVariantField(i, "sku", e.target.value)} />
+                                    <input className={input} placeholder="Size" value={v.size} onChange={(e) => setVariantField(i, "size", e.target.value)} />
+                                    <input className={input} placeholder="Màu" value={v.color} onChange={(e) => setVariantField(i, "color", e.target.value)} />
+                                    <input className={input} placeholder="Tồn kho" value={v.stock} onChange={(e) => setVariantField(i, "stock", e.target.value)} />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeVariant(i)}
+                                        disabled={variants.length === 1}
+                                        className="rounded border px-3 py-2 text-sm text-red-600 disabled:opacity-30"
+                                    >
+                                        Xóa dòng
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        <button type="button" onClick={addVariant} className="mt-2 text-sm underline">
+                            + Thêm biến thể
                         </button>
-                    )}
-                </div>
-            </form>
+                    </div>
 
+                    <div className="flex gap-2 md:col-span-2">
+                        <button
+                            disabled={saving || uploading}
+                            className="flex-1 rounded bg-black py-2 text-white disabled:opacity-50"
+                        >
+                            {saving ? "Đang lưu..." : editingId ? "Lưu thay đổi" : "Tạo sản phẩm"}
+                        </button>
+                        {editingId && (
+                            <button type="button" onClick={resetForm} className="rounded border px-4 py-2">
+                                Hủy sửa
+                            </button>
+                        )}
+                    </div>
+                </form>
+            )}
             <div className="space-y-2">
                 {products.map((p) => {
                     const totalStock = p.variants.reduce((sum, v) => sum + v.stock, 0);
@@ -264,10 +271,12 @@ export default function AdminProductsPage() {
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex gap-3 text-sm">
-                                <button onClick={() => startEdit(p)} className="underline">Sửa</button>
-                                <button onClick={() => hide(p._id)} className="text-red-600">Ẩn</button>
-                            </div>
+                            {!readOnly && (
+                                <div className="flex gap-3 text-sm">
+                                    <button onClick={() => startEdit(p)} className="underline">Sửa</button>
+                                    <button onClick={() => hide(p._id)} className="text-red-600">Ẩn</button>
+                                </div>
+                            )}
                         </div>
                     );
                 })}

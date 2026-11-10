@@ -36,3 +36,12 @@ export function requireRole(...roles) {
         next();
     };
 }
+// admin được mọi thao tác; viewer (tài khoản demo) chỉ được đọc
+export function requireAdminOrViewerRead(req, res, next) {
+    const { role } = req.user;
+    if (role === "admin") return next();
+    if (role === "viewer" && (req.method === "GET" || req.method === "HEAD")) {
+        return next();
+    }
+    return res.status(403).json({ message: "Bạn không có quyền thực hiện" });
+}
