@@ -9,7 +9,7 @@ const DEMO_USERS = [
     {
         name: "Demo Viewer",
         email: "viewer.demo@example.com",
-        password: " ",
+        password: "DemoViewer2026",
         role: "viewer",
     },
     {

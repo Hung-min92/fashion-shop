@@ -35,7 +35,13 @@ export default function App() {
                 <span>Xin chào, {user.name}</span>
                 <Link to="/cart" className="hover:underline">Giỏ hàng</Link>
                 <Link to="/orders" className="hover:underline">Đơn hàng</Link>
-                {user.role === "admin" && (
+                {user.role !== "viewer" && (
+                  <>
+                    <Link to="/cart" className="hover:underline">Giỏ hàng</Link>
+                    <Link to="/orders" className="hover:underline">Đơn hàng</Link>
+                  </>
+                )}
+                {(user.role === "admin" || user.role === "viewer") && (
                   <>
                     <Link to="/admin" className="hover:underline">Thống kê</Link>
                     <Link to="/admin/orders" className="hover:underline">Quản lý đơn</Link>
@@ -67,9 +73,9 @@ export default function App() {
           <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
           <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-          <Route path="/admin/orders" element={<ProtectedRoute role="admin"><AdminOrdersPage /></ProtectedRoute>} />
-          <Route path="/admin/products" element={<ProtectedRoute role="admin"><AdminProductsPage /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute role={["admin", "viewer"]}><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/admin/orders" element={<ProtectedRoute role={["admin", "viewer"]}><AdminOrdersPage /></ProtectedRoute>} />
+          <Route path="/admin/products" element={<ProtectedRoute role={["admin", "viewer"]}><AdminProductsPage /></ProtectedRoute>} />
           <Route path="*" element={<p>Không tìm thấy trang.</p>} />
         </Routes>
       </main>
