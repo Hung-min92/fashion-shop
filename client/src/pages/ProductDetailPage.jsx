@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { api, apiGet } from "../api.js";
 import { useAuth } from "../AuthContext.jsx";
+import Stars from "../components/Stars.jsx";
+import ReviewSection from "../components/ReviewSection.jsx";
 
 export default function ProductDetailPage() {
     const { id } = useParams();
@@ -34,7 +36,10 @@ export default function ProductDetailPage() {
     const selected = product.variants.find(
         (v) => v.size === size && v.color === color
     );
-
+    async function reloadProduct() {
+        const body = await apiGet(`/api/products/${id}`);
+        setProduct(body.data);
+    }
     async function addToCart() {
         if (!user) return navigate("/login");
         try {
@@ -88,6 +93,15 @@ export default function ProductDetailPage() {
                 <div>
                     <p className="text-sm text-gray-500">{product.category?.name}</p>
                     <h1 className="text-2xl font-bold">{product.name}</h1>
+                    {product.ratingCount > 0 ? (
+                        <p className="mt-1 flex items-center gap-2 text-sm">
+                            <Stars value={product.ratingAverage} />
+                            <span className="font-bold">{product.ratingAverage}</span>
+                            <span className="text-gray-500">({product.ratingCount} đánh giá)</span>
+                        </p>
+                    ) : (
+                        <p className="mt-1 text-sm text-gray-500">Chưa có đánh giá</p>
+                    )}
                     <p className="my-2 text-xl font-semibold">
                         {product.price.toLocaleString("vi-VN")}đ
                     </p>
@@ -144,6 +158,7 @@ export default function ProductDetailPage() {
                     {msg && <p className="mt-2 text-sm">{msg}</p>}
                 </div>
             </div>
+            <ReviewSection productId={product._id} onChanged={reloadProduct} />
         </div>
     );
 }
