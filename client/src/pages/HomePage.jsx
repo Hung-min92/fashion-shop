@@ -5,8 +5,6 @@ import { ArrowRightIcon, ChevronRightIcon } from "../components/Icons.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import {
   BRAND_STORY_BANNER,
-  CATEGORY_CARD_TONES,
-  CATEGORY_FALLBACK_IMAGES,
   EDITORIAL_BANNER,
   HERO_AUTOPLAY_MS,
   HERO_SLIDES,
@@ -31,7 +29,6 @@ function ProductGridSkeleton() {
 export default function HomePage() {
   const { showToast } = useToast();
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
@@ -43,14 +40,10 @@ export default function HomePage() {
   useEffect(() => {
     let ignore = false;
 
-    Promise.all([
-      apiGet("/api/products?sort=newest&limit=12"),
-      apiGet("/api/categories"),
-    ])
-      .then(([prodBody, catBody]) => {
+    apiGet("/api/products?sort=newest&limit=12")
+      .then((prodBody) => {
         if (ignore) return;
         setProducts(prodBody.data || []);
-        setCategories(catBody.data || []);
       })
       .catch(() => {})
       .finally(() => {
@@ -86,28 +79,6 @@ export default function HomePage() {
       )
       .slice(0, 4);
   }, [products, newArrivals]);
-
-  const categoryCards = useMemo(() => {
-    if (categories.length === 0) return [];
-
-    return categories.slice(0, 6).map((cat, idx) => {
-      const catProductImg = products.find(
-        (p) => p.category?._id === cat._id && p.images?.length > 0
-      )?.images[0];
-
-      return {
-        id: cat._id,
-        title: cat.name,
-        subtitle: `Khám phá các thiết kế ${cat.name.toLowerCase()}`,
-        to: `/categories/${cat.slug}`,
-        image:
-          catProductImg ||
-          CATEGORY_FALLBACK_IMAGES[cat.slug] ||
-          CATEGORY_FALLBACK_IMAGES.default,
-        tone: CATEGORY_CARD_TONES[idx % CATEGORY_CARD_TONES.length],
-      };
-    });
-  }, [categories, products]);
 
   function handleSubscribe(e) {
     e.preventDefault();
@@ -165,61 +136,45 @@ export default function HomePage() {
           ))}
 
           <div
-            className={`absolute inset-0 transition-colors duration-700 ${
+            className={`pointer-events-none absolute inset-0 transition-colors duration-700 ${
               isDarkSlide
-                ? "bg-gradient-to-r from-[#171717]/80 via-[#171717]/40 to-transparent"
-                : "bg-gradient-to-r from-[#F5F4F0]/90 via-[#F5F4F0]/45 to-transparent sm:from-[#F5F4F0]/75 sm:via-[#F5F4F0]/20"
+                ? "bg-gradient-to-r from-black/35 via-black/10 to-transparent"
+                : "bg-gradient-to-r from-white/30 via-transparent to-transparent"
             }`}
           />
 
           <div className="absolute inset-0 mx-auto flex max-w-[1440px] items-end px-4 pb-14 sm:items-center sm:px-6 sm:pb-0 lg:px-10">
-            <div key={activeSlide.id} className="animate-fade-in-up max-w-lg">
-              <p
-                className={`text-[11px] font-medium uppercase tracking-[0.24em] ${
-                  isDarkSlide ? "text-[#B9A58A]" : "text-[#777777]"
-                }`}
-              >
-                {activeSlide.eyebrow}
-              </p>
-              <h1
-                className={`mt-3 font-serif text-3xl font-normal leading-[1.12] tracking-tight sm:text-5xl lg:text-[54px] ${
-                  isDarkSlide ? "text-white" : "text-[#171717]"
-                }`}
-              >
-                {activeSlide.title}
-              </h1>
-              <p
-                className={`mt-4 text-sm leading-relaxed sm:text-base ${
-                  isDarkSlide ? "text-white/85" : "text-[#202020]"
-                }`}
-              >
-                {activeSlide.subtitle}
-              </p>
-
-              <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Link
-                  to={activeSlide.primaryCta.to}
-                  className={`px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition ${
-                    isDarkSlide
-                      ? "bg-white text-[#171717] hover:bg-[#F5F4F0]"
-                      : "bg-[#171717] text-white hover:bg-[#202020]"
+            <div
+              key={activeSlide.id}
+              className={`animate-fade-in-up max-w-lg ${isDarkSlide ? "drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]" : ""}`}
+            >
+              {activeSlide.eyebrow && (
+                <p
+                  className={`text-[11px] font-medium uppercase tracking-[0.24em] ${
+                    isDarkSlide ? "text-[#B9A58A]" : "text-[#777777]"
                   }`}
                 >
-                  {activeSlide.primaryCta.label}
-                </Link>
-                {activeSlide.secondaryCta && (
-                  <Link
-                    to={activeSlide.secondaryCta.to}
-                    className={`border px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] backdrop-blur-sm transition ${
-                      isDarkSlide
-                        ? "border-white text-white hover:bg-white hover:text-[#171717]"
-                        : "border-[#171717] bg-white/80 text-[#171717] hover:bg-[#171717] hover:text-white"
-                    }`}
-                  >
-                    {activeSlide.secondaryCta.label}
-                  </Link>
-                )}
-              </div>
+                  {activeSlide.eyebrow}
+                </p>
+              )}
+              {activeSlide.title && (
+                <h1
+                  className={`mt-3 font-serif text-3xl font-normal leading-[1.12] tracking-tight sm:text-5xl lg:text-[54px] ${
+                    isDarkSlide ? "text-white" : "text-[#171717]"
+                  }`}
+                >
+                  {activeSlide.title}
+                </h1>
+              )}
+              {activeSlide.subtitle && (
+                <p
+                  className={`mt-4 text-sm leading-relaxed sm:text-base ${
+                    isDarkSlide ? "text-white/85" : "text-[#202020]"
+                  }`}
+                >
+                  {activeSlide.subtitle}
+                </p>
+              )}
             </div>
           </div>
 
@@ -297,71 +252,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* D. Shop By Category */}
-      <section className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
-        <div className="mb-10 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#777777]">
-              Curated Wardrobe
-            </p>
-            <h2 className="mt-1.5 font-serif text-2xl font-normal text-[#171717] sm:text-3xl">
-              Shop By Category
-            </h2>
-          </div>
-          <Link
-            to="/products"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-[#171717] transition hover:text-[#B9A58A]"
-          >
-            <span>Tất cả sản phẩm</span>
-            <ArrowRightIcon className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-
-        {categoryCards.length > 0 ? (
-          <div
-            className={`grid grid-cols-1 gap-6 ${
-              categoryCards.length === 1
-                ? "max-w-md"
-                : categoryCards.length === 2
-                ? "sm:grid-cols-2"
-                : "sm:grid-cols-2 md:grid-cols-3"
-            }`}
-          >
-            {categoryCards.map((cat) => (
-              <Link key={cat.id} to={cat.to} className="group block">
-                <div className={`aspect-[3/4] w-full overflow-hidden ${cat.tone}`}>
-                  <img
-                    src={cat.image}
-                    alt={cat.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover object-center transition duration-700 ease-out group-hover:scale-[1.04]"
-                  />
-                </div>
-                <div className="mt-4 flex items-center justify-between border-b border-[#EAEAEA] pb-3">
-                  <div>
-                    <h3 className="text-sm font-medium uppercase tracking-[0.16em] text-[#171717]">
-                      {cat.title}
-                    </h3>
-                    <p className="mt-0.5 text-xs text-[#777777]">{cat.subtitle}</p>
-                  </div>
-                  <ArrowRightIcon className="h-4 w-4 text-[#777777] transition-transform duration-300 group-hover:translate-x-1 group-hover:text-[#171717]" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          loading && (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="aspect-[3/4] animate-pulse bg-[#F5F4F0]" />
-              ))}
-            </div>
-          )
-        )}
-      </section>
-
       {/* E. New Arrivals */}
-      <section className="mx-auto max-w-[1440px] border-t border-[#EAEAEA] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
+      <section className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
         <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <h2 className="text-xl font-medium uppercase tracking-[0.2em] text-[#171717] sm:text-2xl">
@@ -397,30 +289,40 @@ export default function HomePage() {
 
       {/* F. Editorial Banner */}
       <section className="relative w-full overflow-hidden bg-[#171717] text-white">
-        <div className="relative min-h-[54vh] w-full lg:aspect-[21/9]">
+        <div className="relative min-h-[62vh] w-full lg:aspect-[16/9] lg:max-h-[76vh]">
           <img
             src={EDITORIAL_BANNER.image}
-            alt={`${EDITORIAL_BANNER.title} — ${EDITORIAL_BANNER.subtitle}`}
-            className="h-full w-full scale-105 object-cover object-center opacity-55"
+            alt={EDITORIAL_BANNER.title || "Editorial Collection"}
+            className="h-full w-full object-cover object-[center_20%]"
           />
-          <div className="absolute inset-0 bg-[#171717]/45" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/50 via-black/15 to-transparent" />
 
-          <div className="absolute inset-0 mx-auto flex max-w-[1440px] flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-10">
-            <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-[#B9A58A]">
-              {EDITORIAL_BANNER.eyebrow}
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-normal tracking-wide text-white sm:text-5xl">
-              {EDITORIAL_BANNER.title}
-            </h2>
-            <p className="mt-3 max-w-md text-sm text-white/85">
-              {EDITORIAL_BANNER.subtitle}
-            </p>
-            <Link
-              to={EDITORIAL_BANNER.ctaTo}
-              className="mt-8 border border-white px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-white hover:text-[#171717]"
-            >
-              {EDITORIAL_BANNER.ctaLabel}
-            </Link>
+          <div className="absolute inset-0 mx-auto flex max-w-[1440px] items-end px-4 pb-12 sm:items-center sm:px-6 sm:pb-0 lg:px-10">
+            <div className="max-w-lg drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
+              {EDITORIAL_BANNER.eyebrow && (
+                <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-[#B9A58A]">
+                  {EDITORIAL_BANNER.eyebrow}
+                </p>
+              )}
+              {EDITORIAL_BANNER.title && (
+                <h2 className="mt-3 font-serif text-3xl font-normal leading-[1.12] tracking-wide text-white sm:text-5xl">
+                  {EDITORIAL_BANNER.title}
+                </h2>
+              )}
+              {EDITORIAL_BANNER.subtitle && (
+                <p className="mt-3 max-w-md text-sm leading-relaxed text-white/90 sm:text-base">
+                  {EDITORIAL_BANNER.subtitle}
+                </p>
+              )}
+              {EDITORIAL_BANNER.ctaLabel && (
+                <Link
+                  to={EDITORIAL_BANNER.ctaTo || "/products"}
+                  className="mt-7 inline-block border border-white px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-white hover:text-[#171717]"
+                >
+                  {EDITORIAL_BANNER.ctaLabel}
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </section>

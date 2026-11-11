@@ -16,36 +16,22 @@ export const HERO_AUTOPLAY_MS = 4500;
 export const HERO_SLIDES = [
   {
     id: "season-2026",
-    eyebrow: "NEW SEASON 2026",
-    title: "Timeless Style. Everyday Elegance.",
-    subtitle: "Khám phá bộ sưu tập mới.",
-    image: heroBannerImg,
-    imageClass: "object-[75%_center] sm:object-center",
-    theme: "light",
-    primaryCta: { label: "Khám phá bộ sưu tập", to: "/products" },
-    secondaryCta: { label: "Mua ngay", to: "/products?sort=newest" },
+    title: "GIN BOUTIQUE",
+    image: "https://res.cloudinary.com/yvegjlxd/image/upload/v1794387471/BN1.jpg",
+    imageClass: "object-center",
+    theme: "dark",
   },
   {
     id: "monochrome-edit",
-    eyebrow: "MONOCHROME CAPSULE",
-    title: "Less Noise. Pure Silhouette.",
-    subtitle: "Tỷ lệ cắt may chuẩn xác trong từng thiết kế hằng ngày.",
-    image: heroBannerImg,
-    imageClass: "object-[80%_18%] scale-110 grayscale contrast-110",
+    image: "https://res.cloudinary.com/yvegjlxd/image/upload/v1794387471/BN4.jpg",
+    imageClass: "object-center",
     theme: "dark",
-    primaryCta: { label: "Xem hàng mới về", to: "/products?sort=newest" },
-    secondaryCta: { label: "Tất cả sản phẩm", to: "/products" },
   },
   {
     id: "essentials-edit",
-    eyebrow: "ATELIER ESSENTIALS",
-    title: "Crafted in Natural Fabrics.",
-    subtitle: "Cotton hữu cơ, linen tự nhiên và bảng màu trung tính vượt thời gian.",
-    image: heroBannerImg,
-    imageClass: "object-[65%_30%] scale-105 sepia-[0.18]",
-    theme: "light",
-    primaryCta: { label: "Khám phá ngay", to: "/products" },
-    secondaryCta: { label: "Giá tốt", to: "/products?sort=price_asc" },
+    image: "https://res.cloudinary.com/yvegjlxd/image/upload/v1794387471/BN5.jpg",
+    imageClass: "object-center",
+    theme: "dark",
   },
 ];
 
@@ -64,12 +50,12 @@ export const CATEGORY_CARD_TONES = [
 ];
 
 export const EDITORIAL_BANNER = {
-  eyebrow: "Editorial · Autumn / Winter",
-  title: "LESS, BUT BETTER.",
-  subtitle: "Designed for everyday living.",
+  eyebrow: "URBAN EDIT · GIN BOUTIQUE",
+  title: "Effortless Motion.",
+  subtitle: "Tối giản trong từng đường nét, tự do trong mọi chuyển động hằng ngày.",
   ctaLabel: "EXPLORE COLLECTION",
   ctaTo: "/products",
-  image: heroBannerImg,
+  image: "https://res.cloudinary.com/yvegjlxd/image/upload/v1794387471/BN6.jpg",
 };
 
 export const BRAND_STORY_BANNER = {

@@ -14,7 +14,6 @@ import WishlistPage from "./pages/WishlistPage.jsx";
 import { WishlistProvider } from "./WishlistContext.jsx";
 import { CartProvider } from "./CartContext.jsx";
 import { ToastProvider } from "./ToastContext.jsx";
-import AnnouncementBar from "./components/layout/AnnouncementBar.jsx";
 import Header from "./components/layout/Header.jsx";
 import Footer from "./components/layout/Footer.jsx";
 
@@ -52,7 +51,6 @@ export default function App() {
       <CartProvider>
         <WishlistProvider>
           <div className="flex min-h-screen flex-col bg-white text-[#202020]">
-            <AnnouncementBar />
             <Header />
 
             <main className="flex-1">
