@@ -4,6 +4,7 @@ import { api, apiGet } from "../api.js";
 import { useAuth } from "../AuthContext.jsx";
 import Stars from "../components/Stars.jsx";
 import ReviewSection from "../components/ReviewSection.jsx";
+import HeartButton from "../components/HeartButton.jsx";
 
 export default function ProductDetailPage() {
     const { id } = useParams();
@@ -155,8 +156,9 @@ export default function ProductDetailPage() {
                     >
                         Thêm vào giỏ
                     </button>
-                    {msg && <p className="mt-2 text-sm">{msg}</p>}
+                    <HeartButton product={product} className="h-10 w-10" />
                 </div>
+                {msg && <p className="mt-2 text-sm">{msg}</p>}
             </div>
             <ReviewSection productId={product._id} onChanged={reloadProduct} />
         </div>

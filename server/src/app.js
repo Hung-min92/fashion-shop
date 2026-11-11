@@ -13,6 +13,8 @@ import rateLimit from "express-rate-limit";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import adminStatsRoutes from "./routes/adminStatsRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import wishlistRoutes from "./routes/wishlistRoutes.js";
+
 
 const app = express();
 app.set("trust proxy", 1);
@@ -67,6 +69,7 @@ app.use("/api/admin/orders", adminOrderRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/admin/stats", adminStatsRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
