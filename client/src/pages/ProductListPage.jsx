@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiGet } from "../api.js";
+import Stars from "../components/Stars.jsx";
 
 const SORTS = [
     { value: "newest", label: "Mới nhất" },
@@ -177,6 +178,12 @@ export default function ProductListPage() {
                             <p className="mt-1 line-clamp-2 font-black uppercase leading-tight">
                                 {p.name}
                             </p>
+                            {p.ratingCount > 0 && (
+                                <p className="mt-1 flex items-center gap-1 text-xs">
+                                    <Stars value={p.ratingAverage} size="text-sm" />
+                                    <span className="text-gray-500">({p.ratingCount})</span>
+                                </p>
+                            )}
                             <p className="mt-2 inline-block bg-[#c6ff00] px-2 py-0.5 text-sm font-black">
                                 {p.price.toLocaleString("vi-VN")}đ
                             </p>

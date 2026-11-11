@@ -32,6 +32,8 @@ const productSchema = new mongoose.Schema(
             min: [0, "Giá không được âm"],
         },
         images: [{ type: String }],
+        ratingAverage: { type: Number, default: 0, min: 0, max: 5 },
+        ratingCount: { type: Number, default: 0, min: 0 },
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category",
