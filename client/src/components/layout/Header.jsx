@@ -80,27 +80,15 @@ export default function Header() {
     };
   }, []);
 
-  const findCategoryLink = useMemo(() => {
-    return (keyword) => {
-      const matched = categories.find(
-        (c) =>
-          c.slug?.toLowerCase().includes(keyword) ||
-          c.name?.toLowerCase().includes(keyword)
-      );
-      return matched ? `/products?category=${matched._id}` : "/products";
-    };
-  }, [categories]);
-
   const navItems = useMemo(
     () => [
       { key: "home", label: "Trang chủ", to: "/" },
-      { key: "men", label: "Nam", to: findCategoryLink("nam"), mega: true },
-      { key: "women", label: "Nữ", to: findCategoryLink("nu"), mega: true },
-      { key: "collections", label: "Bộ sưu tập", to: "/products", mega: true },
+      { key: "products", label: "Sản phẩm", to: "/products", mega: true },
       { key: "new", label: "Hàng mới về", to: "/products?sort=newest" },
-      { key: "sale", label: "Sale", to: "/products?sort=price_asc" },
+      { key: "collections", label: "Bộ sưu tập", to: "/products", mega: true },
+      { key: "deals", label: "Giá tốt", to: "/products?sort=price_asc" },
     ],
-    [findCategoryLink]
+    []
   );
 
   function openMega(key) {
