@@ -36,7 +36,7 @@ export default function Header() {
   useEffect(() => {
     apiGet("/api/categories")
       .then((body) => setCategories(body.data || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Close menus on route change
@@ -143,7 +143,7 @@ export default function Header() {
             to="/"
             className="text-base font-semibold uppercase tracking-[0.24em] text-[#171717] transition hover:opacity-75 sm:text-lg"
           >
-            FASHION SHOP
+            GIN SHOP
           </Link>
         </div>
 
@@ -163,15 +163,13 @@ export default function Header() {
               >
                 <Link
                   to={item.to}
-                  className={`relative text-[12px] font-medium uppercase tracking-[0.14em] transition-colors hover:text-[#171717] ${
-                    isActive ? "text-[#171717]" : "text-[#777777]"
-                  }`}
+                  className={`relative text-[12px] font-medium uppercase tracking-[0.14em] transition-colors hover:text-[#171717] ${isActive ? "text-[#171717]" : "text-[#777777]"
+                    }`}
                 >
                   {item.label}
                   <span
-                    className={`absolute -bottom-1 left-0 h-[1px] bg-[#171717] transition-all duration-300 ${
-                      isActive || activeMega === item.key ? "w-full" : "w-0"
-                    }`}
+                    className={`absolute -bottom-1 left-0 h-[1px] bg-[#171717] transition-all duration-300 ${isActive || activeMega === item.key ? "w-full" : "w-0"
+                      }`}
                   />
                 </Link>
               </div>
@@ -474,7 +472,7 @@ export default function Header() {
             <div className="overflow-y-auto p-6">
               <div className="mb-8 flex items-center justify-between border-b border-[#EAEAEA] pb-4">
                 <span className="text-sm font-semibold uppercase tracking-[0.22em] text-[#171717]">
-                  FASHION SHOP
+                  GIN SHOP
                 </span>
                 <button
                   type="button"

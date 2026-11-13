@@ -49,7 +49,7 @@ export default function Footer() {
               to="/"
               className="text-sm font-semibold uppercase tracking-[0.22em] text-[#171717]"
             >
-              FASHION SHOP
+              GIN SHOP
             </Link>
             <p className="mt-4 text-xs leading-relaxed text-[#777777]">
               Trang phục thiết yếu mang tinh thần tối giản đương đại. Tập trung vào phom dáng
@@ -187,7 +187,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-[#EAEAEA] pt-8 text-[11px] text-[#777777] sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} FASHION SHOP. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} GIN SHOP. All rights reserved.</p>
           <p className="uppercase tracking-[0.14em]">
             Minimalist Essentials · Thanh toán khi nhận hàng (COD)
           </p>

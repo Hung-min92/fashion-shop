@@ -61,5 +61,5 @@ export const EDITORIAL_BANNER = {
 export const BRAND_STORY_BANNER = {
   eyebrow: "Our Philosophy",
   title: "SIMPLICITY IS THE ULTIMATE SOPHISTICATION.",
-  image: heroBannerImg,
+  image: "https://res.cloudinary.com/yvegjlxd/image/upload/v1794552890/f1.jpg",
 };
