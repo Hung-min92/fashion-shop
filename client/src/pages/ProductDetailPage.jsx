@@ -134,6 +134,7 @@ export default function ProductDetailPage() {
   const loading = !error && loadedId !== id;
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     let ignore = false;
 
     apiGet(`/api/products/${id}`)

@@ -17,6 +17,7 @@ import { CartProvider } from "./CartContext.jsx";
 import { ToastProvider } from "./ToastContext.jsx";
 import Header from "./components/layout/Header.jsx";
 import Footer from "./components/layout/Footer.jsx";
+import ScrollToTop from "./components/common/ScrollToTop.jsx";
 
 function PageContainer({ children }) {
   return (
@@ -51,6 +52,7 @@ export default function App() {
     <ToastProvider>
       <CartProvider>
         <WishlistProvider>
+          <ScrollToTop />
           <div className="flex min-h-screen flex-col bg-white text-[#202020]">
             <Header />
 

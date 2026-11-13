@@ -56,9 +56,9 @@ export default function Footer() {
               chuẩn mực, đường cắt tinh tế và chất liệu bền vững cho nhịp sống hằng ngày.
             </p>
             <div className="mt-5 space-y-1 text-xs text-[#777777]">
-              <p>Flagship: 128 Đồng Khởi, Quận 1, TP. HCM</p>
+              <p>Flagship: 24B Trần Dư,phường Tam Kỳ,tp.Đà Nẵng</p>
               <p>Hotline: 1900 6868 (09:00 – 21:00)</p>
-              <p>Email: care@fashionshop.vn</p>
+              <p>Email: ginshop@fashionshop.vn</p>
             </div>
           </div>
 
