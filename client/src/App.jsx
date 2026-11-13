@@ -9,6 +9,7 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import AdminOrdersPage from "./pages/admin/AdminOrdersPage.jsx";
 import AdminProductsPage from "./pages/admin/AdminProductsPage.jsx";
+import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage.jsx";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage.jsx";
 import WishlistPage from "./pages/WishlistPage.jsx";
 import { WishlistProvider } from "./WishlistContext.jsx";
@@ -162,6 +163,16 @@ export default function App() {
                     <PageContainer>
                       <ProtectedRoute role={["admin", "viewer"]}>
                         <AdminProductsPage />
+                      </ProtectedRoute>
+                    </PageContainer>
+                  }
+                />
+                <Route
+                  path="/admin/categories"
+                  element={
+                    <PageContainer>
+                      <ProtectedRoute role={["admin", "viewer"]}>
+                        <AdminCategoriesPage />
                       </ProtectedRoute>
                     </PageContainer>
                   }

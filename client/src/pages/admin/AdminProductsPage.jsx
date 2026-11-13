@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../api.js";
 import { useAuth } from "../../AuthContext.jsx";
 import AdminNav from "../../components/admin/AdminNav.jsx";
 import { CloseIcon } from "../../components/Icons.jsx";
 import { useToast } from "../../ToastContext.jsx";
+import { slugify } from "../../utils/slugify.js";
 
 const EMPTY_FORM = { name: "", description: "", price: "", category: "" };
 const EMPTY_VARIANT = { sku: "", size: "", color: "", stock: "" };
@@ -23,6 +25,45 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  // Quick category creation states
+  const [showCatModal, setShowCatModal] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatSlug, setNewCatSlug] = useState("");
+  const [creatingCat, setCreatingCat] = useState(false);
+  const [catModalError, setCatModalError] = useState("");
+
+  async function handleQuickCreateCategory(e) {
+    e.preventDefault();
+    if (!newCatName.trim()) {
+      setCatModalError("Vui lòng nhập tên danh mục");
+      return;
+    }
+    const finalSlug = newCatSlug.trim() || slugify(newCatName);
+    if (!finalSlug) {
+      setCatModalError("Slug không hợp lệ");
+      return;
+    }
+    setCatModalError("");
+    setCreatingCat(true);
+    try {
+      const res = await api("/api/categories", {
+        method: "POST",
+        body: { name: newCatName.trim(), slug: finalSlug },
+      });
+      const created = res.data;
+      setCategories((prev) => [...prev, created]);
+      setForm((prev) => ({ ...prev, category: created._id }));
+      showToast(`Đã tạo và chọn danh mục "${created.name}"`);
+      setNewCatName("");
+      setNewCatSlug("");
+      setShowCatModal(false);
+    } catch (err) {
+      setCatModalError(err.message || "Không thể tạo danh mục");
+    } finally {
+      setCreatingCat(false);
+    }
+  }
 
   async function load() {
     const [p, c] = await Promise.all([
@@ -233,7 +274,19 @@ export default function AdminProductsPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs text-[#777777]">Danh mục</label>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-xs text-[#777777]">Danh mục</label>
+              <button
+                type="button"
+                onClick={() => {
+                  setCatModalError("");
+                  setShowCatModal(true);
+                }}
+                className="text-[11px] font-medium text-[#171717] underline hover:text-[#777777]"
+              >
+                + Thêm danh mục mới
+              </button>
+            </div>
             <select
               className={inputClass}
               value={form.category}
@@ -419,6 +472,99 @@ export default function AdminProductsPage() {
           );
         })}
       </div>
+
+      {/* Quick Add Category Modal */}
+      {showCatModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md border border-[#EAEAEA] bg-white p-6 shadow-xl sm:p-7">
+            <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-3">
+              <h3 className="text-xs font-medium uppercase tracking-[0.16em] text-[#171717]">
+                Thêm danh mục mới
+              </h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCatModal(false);
+                  setCatModalError("");
+                }}
+                className="text-[#777777] hover:text-[#171717]"
+              >
+                <CloseIcon className="h-4 w-4" />
+              </button>
+            </div>
+
+            {catModalError && (
+              <div className="mt-4 border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                {catModalError}
+              </div>
+            )}
+
+            <form onSubmit={handleQuickCreateCategory} className="mt-4 space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs text-[#777777]">
+                  Tên danh mục <span className="text-red-500">*</span>
+                </label>
+                <input
+                  className={inputClass}
+                  placeholder="Ví dụ: Áo Sơ Mi, Áo Len, Quần Jeans..."
+                  value={newCatName}
+                  onChange={(e) => {
+                    setNewCatName(e.target.value);
+                    setNewCatSlug(slugify(e.target.value));
+                  }}
+                  autoFocus
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs text-[#777777]">
+                  Đường dẫn (Slug) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  className={inputClass}
+                  placeholder="ao-so-mi"
+                  value={newCatSlug}
+                  onChange={(e) => setNewCatSlug(slugify(e.target.value))}
+                  required
+                />
+                <p className="mt-1 text-[11px] text-[#999999]">
+                  Tự động chuyển từ tên (chỉ gồm chữ thường không dấu và dấu gạch ngang)
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-[#EAEAEA] pt-4">
+                <Link
+                  to="/admin/categories"
+                  onClick={() => setShowCatModal(false)}
+                  className="text-xs text-[#777777] underline hover:text-[#171717]"
+                >
+                  Quản lý tất cả danh mục →
+                </Link>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCatModal(false);
+                      setCatModalError("");
+                    }}
+                    className="border border-[#EAEAEA] bg-white px-4 py-2 text-xs uppercase tracking-[0.14em] text-[#777777] hover:border-[#171717] hover:text-[#171717]"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={creatingCat}
+                    className="bg-[#171717] px-5 py-2 text-xs uppercase tracking-[0.14em] text-white hover:bg-[#202020] disabled:opacity-50"
+                  >
+                    {creatingCat ? "Đang tạo..." : "+ Tạo & Chọn ngay"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

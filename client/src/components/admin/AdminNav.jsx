@@ -5,6 +5,7 @@ const LINKS = [
   { to: "/admin", label: "Thống kê" },
   { to: "/admin/orders", label: "Đơn hàng" },
   { to: "/admin/products", label: "Sản phẩm" },
+  { to: "/admin/categories", label: "Danh mục" },
 ];
 
 export default function AdminNav({ title, subtitle }) {
