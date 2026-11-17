@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { api, setToken, clearToken, getToken } from "./api.js";
 
 const AuthContext = createContext(null);
+
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
@@ -27,13 +28,18 @@ export function AuthProvider({ children }) {
         await login(email, password);
     }
 
+    async function refreshUser() {
+        const b = await api("/api/auth/me");
+        setUser(b.user);
+    }
+
     function logout() {
         clearToken();
         setUser(null);
     }
 
     return (
-        <AuthContext.Provider value={{ user, ready, login, register, logout }}>
+        <AuthContext.Provider value={{ user, ready, login, register, logout, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

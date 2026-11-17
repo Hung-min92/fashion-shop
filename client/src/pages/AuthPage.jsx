@@ -40,7 +40,7 @@ export default function AuthPage({ mode }) {
     try {
       if (isRegister) {
         await register(form.name.trim(), form.email.trim(), form.password);
-        showToast("Đăng ký tài khoản thành công");
+        showToast("Đăng ký thành công. Hãy kiểm tra email để xác minh tài khoản");
       } else {
         await login(form.email.trim(), form.password);
         showToast("Đăng nhập thành công");
@@ -105,7 +105,16 @@ export default function AuthPage({ mode }) {
               onChange={set("password")}
             />
           </div>
-
+          {!isRegister && (
+            <div className="text-right">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-[#777777] underline underline-offset-4"
+              >
+                Quên mật khẩu?
+              </Link>
+            </div>
+          )}
           {error && (
             <div className="border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
               {error}
@@ -120,8 +129,8 @@ export default function AuthPage({ mode }) {
             {submitting
               ? "Đang xử lý..."
               : isRegister
-              ? "Tạo tài khoản"
-              : "Đăng nhập"}
+                ? "Tạo tài khoản"
+                : "Đăng nhập"}
           </button>
         </form>
 

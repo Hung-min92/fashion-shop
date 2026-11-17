@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema(
             default: "customer",
         },
         isActive: { type: Boolean, default: true },
+        emailVerified: { type: Boolean, default: false },
         addresses: [addressSchema],
     },
     { timestamps: true }

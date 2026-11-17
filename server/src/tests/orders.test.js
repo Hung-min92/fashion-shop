@@ -9,6 +9,7 @@ const { default: app } = await import("../app.js");
 const { default: Product } = await import("../models/Product.js");
 const { default: Category } = await import("../models/Category.js");
 const { default: Order } = await import("../models/Order.js");
+const { default: User } = await import("../models/User.js");
 
 const address = {
     fullName: "Nguyen Van A",
@@ -21,6 +22,7 @@ async function registerAndLogin(email) {
     await request(app)
         .post("/api/auth/register")
         .send({ name: "Test", email, password: "matkhau123" });
+    await User.updateOne({ email }, { $set: { emailVerified: true } });
     const res = await request(app)
         .post("/api/auth/login")
         .send({ email, password: "matkhau123" });

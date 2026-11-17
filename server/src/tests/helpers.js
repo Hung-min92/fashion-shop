@@ -17,13 +17,14 @@ export const address = {
 };
 
 // role mặc định là customer; admin/viewer được gán thẳng vào DB rồi mới đăng nhập
-export async function registerAndLogin(email, role = "customer") {
+export async function registerAndLogin(email, role = "customer", { verified = true } = {}) {
     await request(app)
         .post("/api/auth/register")
         .send({ name: "Test", email, password: "matkhau123" });
-    if (role !== "customer") {
-        await User.updateOne({ email }, { $set: { role } });
-    }
+    const set = {};
+    if (role !== "customer") set.role = role;
+    if (verified) set.emailVerified = true;
+    if (Object.keys(set).length) await User.updateOne({ email }, { $set: set });
     const res = await request(app)
         .post("/api/auth/login")
         .send({ email, password: "matkhau123" });

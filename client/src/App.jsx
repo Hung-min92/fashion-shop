@@ -18,6 +18,10 @@ import { ToastProvider } from "./ToastContext.jsx";
 import Header from "./components/layout/Header.jsx";
 import Footer from "./components/layout/Footer.jsx";
 import ScrollToTop from "./components/common/ScrollToTop.jsx";
+import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import EmailVerifyBanner from "./components/EmailVerifyBanner.jsx";
 
 function PageContainer({ children }) {
   return (
@@ -55,6 +59,7 @@ export default function App() {
           <ScrollToTop />
           <div className="flex min-h-screen flex-col bg-white text-[#202020]">
             <Header />
+            <EmailVerifyBanner />
 
             <main className="flex-1">
               <Routes>
@@ -96,6 +101,30 @@ export default function App() {
                   element={
                     <PageContainer>
                       <AuthPage mode="register" />
+                    </PageContainer>
+                  }
+                />
+                <Route
+                  path="/verify-email"
+                  element={
+                    <PageContainer>
+                      <VerifyEmailPage />
+                    </PageContainer>
+                  }
+                />
+                <Route
+                  path="/forgot-password"
+                  element={
+                    <PageContainer>
+                      <ForgotPasswordPage />
+                    </PageContainer>
+                  }
+                />
+                <Route
+                  path="/reset-password"
+                  element={
+                    <PageContainer>
+                      <ResetPasswordPage />
                     </PageContainer>
                   }
                 />

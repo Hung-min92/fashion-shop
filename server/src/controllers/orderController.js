@@ -20,6 +20,14 @@ async function restoreStock(deducted) {
 }
 
 export async function createOrder(req, res) {
+  const buyer = await User.findById(req.user._id).select("emailVerified");
+  if (!buyer?.emailVerified) {
+    return res.status(403).json({
+      message:
+        "Vui lòng xác minh email trước khi đặt hàng. Kiểm tra hộp thư (cả mục Spam) hoặc bấm 'Gửi lại email'.",
+      code: "EMAIL_NOT_VERIFIED",
+    });
+  }
   const parsed = createOrderSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ message: parsed.error.issues[0].message });
