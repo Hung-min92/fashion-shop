@@ -55,17 +55,35 @@ export default function CheckoutPage() {
     setSubmitting(true);
     try {
       const { note, ...shippingAddress } = form;
+      const address = {
+        fullName: shippingAddress.fullName.trim(),
+        phone: shippingAddress.phone.trim(),
+        street: shippingAddress.street.trim(),
+        city: shippingAddress.city.trim(),
+      };
+
+      if (!user) {
+        // Khách vãng lai: gửi danh sách món, giá do backend tự tra
+        const body = await api("/api/orders/guest", {
+          method: "POST",
+          body: {
+            items: cart.items.map((i) => ({
+              productId: i.productId,
+              sku: i.sku,
+              quantity: i.quantity,
+            })),
+            shippingAddress: address,
+            note: note.trim(),
+          },
+        });
+        resetLocalCart();
+        navigate(`/order-success?code=${encodeURIComponent(body.data.orderCode)}`);
+        return;
+      }
+
       await api("/api/orders", {
         method: "POST",
-        body: {
-          shippingAddress: {
-            fullName: shippingAddress.fullName.trim(),
-            phone: shippingAddress.phone.trim(),
-            street: shippingAddress.street.trim(),
-            city: shippingAddress.city.trim(),
-          },
-          note: note.trim(),
-        },
+        body: { shippingAddress: address, note: note.trim() },
       });
       resetLocalCart();
       showToast("Đặt hàng thành công!");
@@ -120,7 +138,15 @@ export default function CheckoutPage() {
               {error}
             </div>
           )}
-
+          {!user && (
+            <div className="border border-[#EAEAEA] bg-[#F5F4F0] px-4 py-3 text-xs leading-relaxed text-[#202020]">
+              Bạn đang đặt hàng không cần tài khoản. Sau khi đặt, hãy lưu lại <b>mã đơn</b> để
+              tra cứu cùng số điện thoại.{" "}
+              <Link to="/login" className="underline underline-offset-4">
+                Đã có tài khoản? Đăng nhập
+              </Link>
+            </div>
+          )}
           <div className="border border-[#EAEAEA] bg-white p-6 sm:p-8">
             <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-[#171717]">
               1. Địa chỉ nhận hàng
@@ -130,9 +156,8 @@ export default function CheckoutPage() {
               <div>
                 <label className="mb-1.5 block text-xs text-[#777777]">Họ và tên *</label>
                 <input
-                  className={`${inputBase} ${
-                    fieldErrors.fullName ? "border-red-400" : "border-[#EAEAEA]"
-                  }`}
+                  className={`${inputBase} ${fieldErrors.fullName ? "border-red-400" : "border-[#EAEAEA]"
+                    }`}
                   placeholder="Nguyễn Văn A"
                   value={form.fullName}
                   onChange={set("fullName")}
@@ -145,9 +170,8 @@ export default function CheckoutPage() {
               <div>
                 <label className="mb-1.5 block text-xs text-[#777777]">Số điện thoại *</label>
                 <input
-                  className={`${inputBase} ${
-                    fieldErrors.phone ? "border-red-400" : "border-[#EAEAEA]"
-                  }`}
+                  className={`${inputBase} ${fieldErrors.phone ? "border-red-400" : "border-[#EAEAEA]"
+                    }`}
                   placeholder="09xxxxxxxx"
                   value={form.phone}
                   onChange={set("phone")}
@@ -160,9 +184,8 @@ export default function CheckoutPage() {
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-xs text-[#777777]">Địa chỉ cụ thể *</label>
                 <input
-                  className={`${inputBase} ${
-                    fieldErrors.street ? "border-red-400" : "border-[#EAEAEA]"
-                  }`}
+                  className={`${inputBase} ${fieldErrors.street ? "border-red-400" : "border-[#EAEAEA]"
+                    }`}
                   placeholder="Số nhà, tên đường, phường/xã"
                   value={form.street}
                   onChange={set("street")}
@@ -175,9 +198,8 @@ export default function CheckoutPage() {
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-xs text-[#777777]">Tỉnh / Thành phố *</label>
                 <input
-                  className={`${inputBase} ${
-                    fieldErrors.city ? "border-red-400" : "border-[#EAEAEA]"
-                  }`}
+                  className={`${inputBase} ${fieldErrors.city ? "border-red-400" : "border-[#EAEAEA]"
+                    }`}
                   placeholder="TP. Hồ Chí Minh"
                   value={form.city}
                   onChange={set("city")}

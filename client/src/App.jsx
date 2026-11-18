@@ -22,6 +22,8 @@ import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import EmailVerifyBanner from "./components/EmailVerifyBanner.jsx";
+import OrderSuccessPage from "./pages/OrderSuccessPage.jsx";
+import OrderLookupPage from "./pages/OrderLookupPage.jsx";
 
 function PageContainer({ children }) {
   return (
@@ -132,9 +134,7 @@ export default function App() {
                   path="/cart"
                   element={
                     <PageContainer>
-                      <ProtectedRoute>
-                        <CartPage />
-                      </ProtectedRoute>
+                      <CartPage />
                     </PageContainer>
                   }
                 />
@@ -142,9 +142,23 @@ export default function App() {
                   path="/checkout"
                   element={
                     <PageContainer>
-                      <ProtectedRoute>
-                        <CheckoutPage />
-                      </ProtectedRoute>
+                      <CheckoutPage />
+                    </PageContainer>
+                  }
+                />
+                <Route
+                  path="/order-success"
+                  element={
+                    <PageContainer>
+                      <OrderSuccessPage />
+                    </PageContainer>
+                  }
+                />
+                <Route
+                  path="/order-lookup"
+                  element={
+                    <PageContainer>
+                      <OrderLookupPage />
                     </PageContainer>
                   }
                 />

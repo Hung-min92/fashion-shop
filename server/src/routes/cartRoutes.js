@@ -5,13 +5,15 @@ import {
   updateItem,
   removeItem,
   clearCart,
+  previewCart,
 } from "../controllers/cartController.js";
 import { protect } from "../middleware/auth.js";
 
 const router = Router();
 
-router.use(protect);
+router.post("/preview", previewCart); // công khai: phải đặt TRƯỚC protect
 
+router.use(protect);
 router.get("/", getCart);
 router.post("/items", addItem);
 router.patch("/items/:itemId", updateItem);

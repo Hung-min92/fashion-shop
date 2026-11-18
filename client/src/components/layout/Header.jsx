@@ -87,6 +87,7 @@ export default function Header() {
       { key: "new", label: "Hàng mới về", to: "/products?sort=newest" },
       { key: "collections", label: "Bộ sưu tập", to: "/products", mega: true },
       { key: "deals", label: "Giá tốt", to: "/products?sort=price_asc" },
+      { key: "lookup", label: "Tra cứu đơn", to: "/order-lookup" },
     ],
     []
   );

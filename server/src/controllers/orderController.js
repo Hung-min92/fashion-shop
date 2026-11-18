@@ -7,6 +7,11 @@ import {
   updateStatusSchema,
   listAdminOrdersSchema,
 } from "../validators/orderValidator.js";
+import {
+  createGuestOrderSchema,
+  lookupOrderSchema,
+} from "../validators/guestValidator.js";
+import { generateOrderCode } from "../utils/orderCode.js";
 import User from "../models/User.js"; // cần để populate("user") hoạt động
 
 // Hoàn lại tồn kho cho các món đã trừ
@@ -19,39 +24,23 @@ async function restoreStock(deducted) {
   }
 }
 
-export async function createOrder(req, res) {
-  const buyer = await User.findById(req.user._id).select("emailVerified");
-  if (!buyer?.emailVerified) {
-    return res.status(403).json({
-      message:
-        "Vui lòng xác minh email trước khi đặt hàng. Kiểm tra hộp thư (cả mục Spam) hoặc bấm 'Gửi lại email'.",
-      code: "EMAIL_NOT_VERIFIED",
-    });
-  }
-  const parsed = createOrderSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ message: parsed.error.issues[0].message });
-  }
-
-  const cart = await Cart.findOne({ user: req.user._id });
-  if (!cart || cart.items.length === 0) {
-    return res.status(400).json({ message: "Giỏ hàng trống" });
-  }
-
+// Lõi đặt hàng dùng chung cho thành viên và khách vãng lai.
+// lines: [{ product, sku, quantity }]. Trả { order } hoặc { error: { status, message } }
+async function placeOrder({ userId, isGuest, lines, shippingAddress, note }) {
   // 1. Tra giá và thông tin từ database, không tin client
   const products = await Product.find({
-    _id: { $in: cart.items.map((i) => i.product) },
+    _id: { $in: lines.map((l) => l.product) },
   });
   const byId = new Map(products.map((p) => [p._id.toString(), p]));
 
   const orderItems = [];
-  for (const item of cart.items) {
-    const product = byId.get(item.product.toString());
-    const variant = product?.variants.find((v) => v.sku === item.sku);
+  for (const line of lines) {
+    const product = byId.get(line.product.toString());
+    const variant = product?.variants.find((v) => v.sku === line.sku);
     if (!product || !product.isActive || !variant) {
-      return res
-        .status(400)
-        .json({ message: `Sản phẩm không còn bán (SKU ${item.sku})` });
+      return {
+        error: { status: 400, message: `Sản phẩm không còn bán (SKU ${line.sku})` },
+      };
     }
     orderItems.push({
       product: product._id,
@@ -60,7 +49,7 @@ export async function createOrder(req, res) {
       size: variant.size,
       color: variant.color,
       price: product.price,
-      quantity: item.quantity,
+      quantity: line.quantity,
     });
   }
 
@@ -75,38 +64,131 @@ export async function createOrder(req, res) {
       },
       { $inc: { "variants.$.stock": -oi.quantity } }
     );
-
     if (result.modifiedCount !== 1) {
       await restoreStock(deducted);
-      return res.status(400).json({
-        message: `Không đủ hàng cho "${oi.name}" (${oi.size}, ${oi.color})`,
-      });
+      return {
+        error: {
+          status: 400,
+          message: `Không đủ hàng cho "${oi.name}" (${oi.size}, ${oi.color})`,
+        },
+      };
     }
     deducted.push({ product: oi.product, sku: oi.sku, quantity: oi.quantity });
   }
 
-  // 3. Tạo đơn, backend tự tính tổng
+  // 3. Tạo đơn, backend tự tính tổng. Thử lại nếu trùng mã đơn (cực hiếm)
   const totalPrice = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-  let order;
-  try {
-    order = await Order.create({
-      user: req.user._id,
-      items: orderItems,
-      shippingAddress: parsed.data.shippingAddress,
-      note: parsed.data.note,
-      totalPrice,
-    });
-  } catch (error) {
+  let order = null;
+  for (let attempt = 0; attempt < 5 && !order; attempt++) {
+    try {
+      order = await Order.create({
+        user: userId ?? undefined,
+        isGuest,
+        orderCode: generateOrderCode(),
+        items: orderItems,
+        shippingAddress,
+        note,
+        totalPrice,
+      });
+    } catch (error) {
+      const duplicateCode = error?.code === 11000 && error?.keyPattern?.orderCode;
+      if (!duplicateCode) {
+        await restoreStock(deducted);
+        throw error;
+      }
+    }
+  }
+  if (!order) {
     await restoreStock(deducted);
-    throw error;
+    throw new Error("Không tạo được mã đơn hàng");
+  }
+  return { order };
+}
+
+export async function createOrder(req, res) {
+  const parsed = createOrderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: parsed.error.issues[0].message });
   }
 
-  // 4. Làm trống giỏ
+  const cart = await Cart.findOne({ user: req.user._id });
+  if (!cart || cart.items.length === 0) {
+    return res.status(400).json({ message: "Giỏ hàng trống" });
+  }
+
+  const result = await placeOrder({
+    userId: req.user._id,
+    isGuest: false,
+    lines: cart.items.map((i) => ({
+      product: i.product,
+      sku: i.sku,
+      quantity: i.quantity,
+    })),
+    shippingAddress: parsed.data.shippingAddress,
+    note: parsed.data.note,
+  });
+  if (result.error) {
+    return res.status(result.error.status).json({ message: result.error.message });
+  }
+
+  // Làm trống giỏ
   cart.items = [];
   await cart.save();
 
-  res.status(201).json({ data: order });
+  res.status(201).json({ data: result.order });
+}
+
+// Gộp các dòng trùng (cùng sản phẩm + SKU) để không trừ kho hai lần cho một món
+function mergeLines(items) {
+  const map = new Map();
+  for (const it of items) {
+    const key = `${it.productId}:${it.sku}`;
+    const found = map.get(key);
+    if (found) found.quantity += it.quantity;
+    else map.set(key, { product: it.productId, sku: it.sku, quantity: it.quantity });
+  }
+  return [...map.values()];
+}
+
+export async function createGuestOrder(req, res) {
+  const parsed = createGuestOrderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: parsed.error.issues[0].message });
+  }
+
+  const result = await placeOrder({
+    userId: null,
+    isGuest: true,
+    lines: mergeLines(parsed.data.items),
+    shippingAddress: parsed.data.shippingAddress,
+    note: parsed.data.note,
+  });
+  if (result.error) {
+    return res.status(result.error.status).json({ message: result.error.message });
+  }
+  res.status(201).json({ data: result.order });
+}
+
+// Tra cứu đơn khách vãng lai bằng mã đơn + số điện thoại
+const digits = (s) => String(s ?? "").replace(/\D/g, "");
+const NOT_FOUND_MESSAGE =
+  "Không tìm thấy đơn hàng. Hãy kiểm tra lại mã đơn và số điện thoại.";
+
+async function findGuestOrder(code, phone) {
+  const order = await Order.findOne({ orderCode: code, isGuest: true });
+  if (!order) return null;
+  if (digits(order.shippingAddress.phone) !== digits(phone)) return null;
+  return order;
+}
+
+export async function lookupOrder(req, res) {
+  const parsed = lookupOrderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: parsed.error.issues[0].message });
+  }
+  const order = await findGuestOrder(parsed.data.code, parsed.data.phone);
+  if (!order) return res.status(404).json({ message: NOT_FOUND_MESSAGE });
+  res.status(200).json({ data: order });
 }
 
 export async function listMyOrders(req, res) {
@@ -125,13 +207,15 @@ export async function getOrder(req, res) {
     return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
   }
 
-  const isOwner = order.user.toString() === req.user._id.toString();
+  // Đơn khách vãng lai không có user nên phải kiểm tra tồn tại trước
+  const isOwner = Boolean(order.user) && order.user.toString() === req.user._id.toString();
   if (!isOwner && req.user.role !== "admin") {
     return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
   }
 
   res.status(200).json({ data: order });
 }
+
 // Trạng thái hiện tại -> các trạng thái được phép chuyển tới
 const ALLOWED_TRANSITIONS = {
   pending: ["shipping", "cancelled"],
@@ -175,9 +259,7 @@ export async function cancelMyOrder(req, res) {
     return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
   }
   if (order.status !== "pending") {
-    return res
-      .status(400)
-      .json({ message: "Chỉ hủy được đơn đang chờ xử lý" });
+    return res.status(400).json({ message: "Chỉ hủy được đơn đang chờ xử lý" });
   }
 
   const updated = await changeStatus(order, "cancelled");
@@ -188,7 +270,29 @@ export async function cancelMyOrder(req, res) {
   }
   res.status(200).json({ data: updated });
 }
+
+export async function cancelGuestOrder(req, res) {
+  const parsed = lookupOrderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: parsed.error.issues[0].message });
+  }
+  const order = await findGuestOrder(parsed.data.code, parsed.data.phone);
+  if (!order) return res.status(404).json({ message: NOT_FOUND_MESSAGE });
+  if (order.status !== "pending") {
+    return res.status(400).json({ message: "Chỉ hủy được đơn đang chờ xử lý" });
+  }
+
+  const updated = await changeStatus(order, "cancelled");
+  if (!updated) {
+    return res
+      .status(409)
+      .json({ message: "Đơn hàng vừa thay đổi, vui lòng thử lại" });
+  }
+  res.status(200).json({ data: updated });
+}
+
 // ---- Che thông tin cá nhân cho tài khoản demo (viewer) ----
+
 function maskName(name) {
   if (!name) return name;
   return name
@@ -225,13 +329,14 @@ function maskOrderForViewer(order) {
   o.note = o.note ? "***" : "";
   return o;
 }
+
 export async function listAdminOrders(req, res) {
   const parsed = listAdminOrdersSchema.safeParse(req.query);
   if (!parsed.success) {
     return res.status(400).json({ message: parsed.error.issues[0].message });
   }
-  const { status, page, limit } = parsed.data;
 
+  const { status, page, limit } = parsed.data;
   const filter = status ? { status } : {};
 
   const [data, totalItems] = await Promise.all([

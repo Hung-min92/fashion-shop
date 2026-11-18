@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import { addItemSchema, updateItemSchema } from "../validators/cartValidator.js";
+import { previewCartSchema } from "../validators/guestValidator.js";
 
 // Lấy giỏ của user, tạo mới nếu chưa có
 async function getOrCreateCart(userId) {
@@ -41,6 +42,23 @@ async function buildCartView(cart) {
     });
 
     return { items, totalPrice: total };
+}
+// Cho khách chưa đăng nhập: giỏ nằm trong trình duyệt, server chỉ tính giá và tồn kho hiện tại
+export async function previewCart(req, res) {
+    const parsed = previewCartSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ message: parsed.error.issues[0].message });
+    }
+
+    const merged = new Map();
+    for (const it of parsed.data.items) {
+        const key = `${it.productId}:${it.sku}`;
+        const found = merged.get(key);
+        if (found) found.quantity += it.quantity;
+        else merged.set(key, { _id: key, product: it.productId, sku: it.sku, quantity: it.quantity });
+    }
+
+    res.status(200).json({ data: await buildCartView({ items: [...merged.values()] }) });
 }
 
 export async function getCart(req, res) {

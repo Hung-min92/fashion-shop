@@ -168,10 +168,10 @@ export default function ProductDetailPage() {
                       );
                     }
                   })
-                  .catch(() => {});
+                  .catch(() => { });
               }
             })
-            .catch(() => {});
+            .catch(() => { });
         }
       })
       .catch((err) => {
@@ -215,12 +215,7 @@ export default function ProductDetailPage() {
   }
 
   async function handleAddToCart({ redirectCheckout = false } = {}) {
-    if (!user) {
-      showToast("Vui lòng đăng nhập để mua hàng");
-      navigate("/login");
-      return;
-    }
-    if (user.role === "viewer") {
+    if (user?.role === "viewer") {
       showToast("Tài khoản demo không hỗ trợ mua hàng", { type: "error" });
       return;
     }
@@ -308,11 +303,10 @@ export default function ProductDetailPage() {
                   key={url}
                   type="button"
                   onClick={() => setActiveImage(i)}
-                  className={`aspect-[3/4] w-16 shrink-0 overflow-hidden border transition sm:w-full ${
-                    i === activeImage
+                  className={`aspect-[3/4] w-16 shrink-0 overflow-hidden border transition sm:w-full ${i === activeImage
                       ? "border-[#171717]"
                       : "border-[#EAEAEA] opacity-65 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <img src={url} alt="" className="h-full w-full object-cover" />
                 </button>
@@ -393,11 +387,10 @@ export default function ProductDetailPage() {
                       type="button"
                       onClick={() => selectColor(c)}
                       title={c}
-                      className={`flex items-center gap-2 border px-3.5 py-2 text-xs transition ${
-                        active
+                      className={`flex items-center gap-2 border px-3.5 py-2 text-xs transition ${active
                           ? "border-[#171717] bg-[#171717] text-white"
                           : "border-[#EAEAEA] bg-white text-[#202020] hover:border-[#171717]"
-                      }`}
+                        }`}
                     >
                       {hex && (
                         <span
@@ -436,13 +429,12 @@ export default function ProductDetailPage() {
                       key={s}
                       type="button"
                       onClick={() => selectSize(s)}
-                      className={`border py-2.5 text-xs font-medium transition ${
-                        active
+                      className={`border py-2.5 text-xs font-medium transition ${active
                           ? "border-[#171717] bg-[#171717] text-white"
                           : out
-                          ? "border-[#EAEAEA] bg-[#F5F4F0] text-[#777777] line-through"
-                          : "border-[#EAEAEA] bg-white text-[#202020] hover:border-[#171717]"
-                      }`}
+                            ? "border-[#EAEAEA] bg-[#F5F4F0] text-[#777777] line-through"
+                            : "border-[#EAEAEA] bg-white text-[#202020] hover:border-[#171717]"
+                        }`}
                     >
                       {s}
                     </button>
@@ -507,8 +499,8 @@ export default function ProductDetailPage() {
                   {submitting
                     ? "Đang xử lý..."
                     : selected?.stock === 0
-                    ? "Hết hàng"
-                    : "Thêm vào giỏ hàng"}
+                      ? "Hết hàng"
+                      : "Thêm vào giỏ hàng"}
                 </button>
 
                 <HeartButton product={product} className="h-auto w-12 shrink-0" />
