@@ -22,7 +22,7 @@ describe("xác minh email", () => {
         expect(user.emailVerified).toBe(false);
     });
 
-    it("chưa xác minh thì không đặt hàng được (403), kho không bị trừ", async () => {
+    it("chưa xác minh vẫn đặt hàng được (không cản trở khách mới)", async () => {
         const { token } = await newUser("b@test.com", { verified: false });
         const { product, sku } = await seedProduct(5);
         await request(app)
@@ -35,8 +35,7 @@ describe("xác minh email", () => {
             .set(auth(token))
             .send({ shippingAddress: address });
 
-        expect(res.status).toBe(403);
-        expect(res.body.code).toBe("EMAIL_NOT_VERIFIED");
+        expect(res.status).toBe(201);
     });
 
     it("mã đúng thì xác minh được, dùng lại lần hai bị từ chối", async () => {

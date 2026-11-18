@@ -114,7 +114,7 @@ export default function OrdersPage() {
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#EAEAEA] pb-4">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#171717]">
-                    Đơn #{o._id.slice(-8).toUpperCase()}
+                    Đơn {o.orderCode || `#${o._id.slice(-8).toUpperCase()}`}
                   </p>
                   <p className="mt-0.5 text-xs text-[#777777]">
                     {new Date(o.createdAt).toLocaleString("vi-VN")}

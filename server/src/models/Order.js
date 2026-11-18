@@ -22,7 +22,9 @@ const shippingAddressSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
     {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        orderCode: { type: String, unique: true, sparse: true, uppercase: true, trim: true },
+        isGuest: { type: Boolean, default: false },
         items: { type: [orderItemSchema], required: true },
         shippingAddress: { type: shippingAddressSchema, required: true },
         paymentMethod: { type: String, enum: ["COD"], default: "COD" },

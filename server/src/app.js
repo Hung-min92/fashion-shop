@@ -52,6 +52,24 @@ const authLimiter = rateLimit({
 });
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
+// Đặt hàng/tra cứu không cần đăng nhập: giới hạn theo IP để chống lạm dụng
+const guestOrderLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: process.env.NODE_ENV === "test" ? 1000 : 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Bạn đặt hàng quá nhiều lần, vui lòng thử lại sau" },
+});
+const lookupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: process.env.NODE_ENV === "test" ? 1000 : 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Tra cứu quá nhiều lần, vui lòng thử lại sau" },
+});
+app.use("/api/orders/guest", guestOrderLimiter);
+app.use("/api/orders/lookup", lookupLimiter);
+app.use("/api/orders/guest-cancel", lookupLimiter);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ message: "Server online" });

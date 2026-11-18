@@ -92,11 +92,10 @@ export default function AdminOrdersPage() {
               setStatus("");
               setPage(1);
             }}
-            className={`border px-3.5 py-2 text-xs uppercase tracking-[0.12em] transition ${
-              status === ""
+            className={`border px-3.5 py-2 text-xs uppercase tracking-[0.12em] transition ${status === ""
                 ? "border-[#171717] bg-[#171717] text-white"
                 : "border-[#EAEAEA] bg-white text-[#202020] hover:border-[#171717]"
-            }`}
+              }`}
           >
             Tất cả
           </button>
@@ -108,11 +107,10 @@ export default function AdminOrdersPage() {
                 setStatus(value);
                 setPage(1);
               }}
-              className={`border px-3.5 py-2 text-xs uppercase tracking-[0.12em] transition ${
-                status === value
+              className={`border px-3.5 py-2 text-xs uppercase tracking-[0.12em] transition ${status === value
                   ? "border-[#171717] bg-[#171717] text-white"
                   : "border-[#EAEAEA] bg-white text-[#202020] hover:border-[#171717]"
-              }`}
+                }`}
             >
               {meta.label}
             </button>
@@ -152,10 +150,21 @@ export default function AdminOrdersPage() {
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#EAEAEA] pb-4">
                 <div>
                   <p className="text-sm font-medium text-[#171717]">
-                    {o.user?.name} <span className="text-[#777777]">({o.user?.email})</span>
+                    {o.user ? (
+                      <>
+                        {o.user.name} <span className="text-[#777777]">({o.user.email})</span>
+                      </>
+                    ) : (
+                      <>
+                        {o.shippingAddress.fullName}{" "}
+                        <span className="border border-[#B9A58A] bg-[#B9A58A]/20 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#171717]">
+                          Khách vãng lai
+                        </span>
+                      </>
+                    )}
                   </p>
                   <p className="mt-1 text-xs text-[#777777]">
-                    #{o._id.slice(-8).toUpperCase()} ·{" "}
+                    {o.orderCode || `#${o._id.slice(-8).toUpperCase()}`} ·{" "}
                     {new Date(o.createdAt).toLocaleString("vi-VN")}
                   </p>
                 </div>
@@ -201,11 +210,10 @@ export default function AdminOrdersPage() {
                         type="button"
                         disabled={updatingId === o._id}
                         onClick={() => changeStatus(o._id, s)}
-                        className={`border px-4 py-2 text-xs uppercase tracking-[0.12em] transition disabled:opacity-50 ${
-                          s === "cancelled"
+                        className={`border px-4 py-2 text-xs uppercase tracking-[0.12em] transition disabled:opacity-50 ${s === "cancelled"
                             ? "border-red-200 text-red-600 hover:border-red-600 hover:bg-red-50"
                             : "border-[#171717] bg-[#171717] text-white hover:bg-[#202020]"
-                        }`}
+                          }`}
                       >
                         Chuyển: {STATUS_META[s].label}
                       </button>
