@@ -22,7 +22,7 @@ async function sendVerificationEmail(user) {
   const token = await createToken(user._id, "verify");
   await sendEmail({
     to: user.email,
-    subject: "Xác minh email - FASHION SHOP",
+    subject: "Xác minh email - GIN SHOP",
     html: verifyEmailHtml({ name: user.name, link: clientLink("/verify-email", token) }),
   });
 }
@@ -166,7 +166,7 @@ export async function forgotPassword(req, res) {
     // Không await việc gửi để thời gian phản hồi ít lộ việc email có tồn tại
     sendEmail({
       to: user.email,
-      subject: "Đặt lại mật khẩu - FASHION SHOP",
+      subject: "Đặt lại mật khẩu - GIN SHOP",
       html: resetPasswordHtml({ name: user.name, link: clientLink("/reset-password", token) }),
     }).catch((err) => console.error("Gửi email đặt lại mật khẩu lỗi:", err.message));
   }

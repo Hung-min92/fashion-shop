@@ -85,7 +85,7 @@ export default function OrderLookupPage() {
                     <label className="mb-1.5 block text-xs text-[#777777]">Mã đơn hàng</label>
                     <input
                         className={`${inputClass} font-mono uppercase`}
-                        placeholder="FS-XXXXXXXX"
+                        placeholder="GS-XXXXXXXX"
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
                     />

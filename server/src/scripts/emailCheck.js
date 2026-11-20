@@ -10,7 +10,7 @@ if (!to) {
 try {
     const result = await sendEmail({
         to,
-        subject: "Thử gửi email từ Fashion Shop",
+        subject: "Thử gửi email từ GIN Shop",
         html: "<p>Nếu bạn đọc được dòng này thì việc gửi email đã hoạt động.</p>",
     });
     console.log(

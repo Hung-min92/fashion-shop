@@ -29,7 +29,7 @@ export async function sendEmail({ to, subject, html }) {
         },
         body: JSON.stringify({
             sender: {
-                name: process.env.MAIL_FROM_NAME || "Fashion Shop",
+                name: process.env.MAIL_FROM_NAME || "GIN SHOP",
                 email: process.env.MAIL_FROM_EMAIL,
             },
             to: [{ email: to }],

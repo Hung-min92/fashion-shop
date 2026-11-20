@@ -68,7 +68,7 @@ export default function AuthPage({ mode }) {
         <p className="mt-2 text-xs leading-relaxed text-[#777777]">
           {isRegister
             ? "Đăng ký để lưu sản phẩm yêu thích, đặt hàng nhanh và theo dõi đơn hàng."
-            : "Đăng nhập vào tài khoản FASHION SHOP của bạn."}
+            : "Đăng nhập vào tài khoản GIN SHOP của bạn."}
         </p>
 
         <form onSubmit={submit} className="mt-7 space-y-4">

@@ -16,7 +16,7 @@ function layout(heading, bodyHtml, link, buttonText) {
 export function verifyEmailHtml({ name, link }) {
     return layout(
         "Xác minh email của bạn",
-        `<p>Chào ${escapeHtml(name)}, cảm ơn bạn đã đăng ký FASHION SHOP. Bấm nút dưới đây để xác minh email (liên kết có hiệu lực 24 giờ).</p>`,
+        `<p>Chào ${escapeHtml(name)}, cảm ơn bạn đã đăng ký GIN SHOP. Bấm nút dưới đây để xác minh email (liên kết có hiệu lực 24 giờ).</p>`,
         link,
         "Xác minh email"
     );
