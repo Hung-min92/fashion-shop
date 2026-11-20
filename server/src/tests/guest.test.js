@@ -37,7 +37,7 @@ describe("đặt hàng không cần tài khoản", () => {
         expect(res.body.data.totalPrice).toBe(200000);
         expect(res.body.data.status).toBe("pending");
         expect(res.body.data.isGuest).toBe(true);
-        expect(res.body.data.orderCode).toMatch(/^FS-[A-Z2-9]{8}$/);
+        expect(res.body.data.orderCode).toMatch(/^GS-[A-Z2-9]{8}$/);
         expect(await stockOf(item)).toBe(8);
     });
 
@@ -107,7 +107,7 @@ describe("tra cứu và hủy đơn khách vãng lai", () => {
             .send({ code, phone: "0900000000" });
         const wrongCode = await request(app)
             .post("/api/orders/lookup")
-            .send({ code: "FS-AAAAAAAA", phone: "0912345678" });
+            .send({ code: "GS-AAAAAAAA", phone: "0912345678" });
 
         expect(wrongPhone.status).toBe(404);
         expect(wrongCode.status).toBe(404);
@@ -127,7 +127,7 @@ describe("tra cứu và hủy đơn khách vãng lai", () => {
             .send({
                 shippingAddress: { fullName: "A", phone: "0901234567", street: "1", city: "HN" },
             });
-        expect(created.body.data.orderCode).toMatch(/^FS-[A-Z2-9]{8}$/);
+        expect(created.body.data.orderCode).toMatch(/^GS-[A-Z2-9]{8}$/);
 
         const res = await request(app)
             .post("/api/orders/lookup")

@@ -520,7 +520,7 @@ export default function ProductDetailPage() {
             <div className="mt-6 space-y-2.5 bg-[#F5F4F0] p-4 text-xs text-[#202020]">
               <div className="flex items-center gap-2.5">
                 <TruckIcon className="h-4 w-4 text-[#777777]" />
-                <span>Miễn phí vận chuyển cho đơn hàng từ 500.000đ</span>
+                <span>Miễn phí vận chuyển toàn quốc</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <RefreshIcon className="h-4 w-4 text-[#777777]" />

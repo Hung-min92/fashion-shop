@@ -1,4 +1,4 @@
-# Fashion Shop
+# GIN Shop
 
 Website bán hàng thời trang xây dựng bằng MERN Stack (MongoDB, Express, React, Node.js).
 

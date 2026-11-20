@@ -24,6 +24,8 @@ import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import EmailVerifyBanner from "./components/EmailVerifyBanner.jsx";
 import OrderSuccessPage from "./pages/OrderSuccessPage.jsx";
 import OrderLookupPage from "./pages/OrderLookupPage.jsx";
+import PolicyPage from "./pages/PolicyPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
 
 function PageContainer({ children }) {
   return (
@@ -219,6 +221,22 @@ export default function App() {
                       <ProtectedRoute role={["admin", "viewer"]}>
                         <AdminCategoriesPage />
                       </ProtectedRoute>
+                    </PageContainer>
+                  }
+                />
+                <Route
+                  path="/policy/:slug"
+                  element={
+                    <PageContainer>
+                      <PolicyPage />
+                    </PageContainer>
+                  }
+                />
+                <Route
+                  path="/contact"
+                  element={
+                    <PageContainer>
+                      <ContactPage />
                     </PageContainer>
                   }
                 />

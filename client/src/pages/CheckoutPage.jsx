@@ -236,7 +236,7 @@ export default function CheckoutPage() {
               <div className="flex items-center justify-between border border-[#EAEAEA] p-4">
                 <div>
                   <p className="font-medium text-[#171717]">Giao hàng tiêu chuẩn</p>
-                  <p className="mt-0.5 text-xs text-[#777777]">Dự kiến nhận hàng trong 2–5 ngày</p>
+                  <p className="mt-0.5 text-xs text-[#777777]">Dự kiến nhận hàng trong 2–6 ngày làm việc</p>
                 </div>
                 <span className="text-xs font-medium uppercase tracking-wider text-[#171717]">
                   Miễn phí
